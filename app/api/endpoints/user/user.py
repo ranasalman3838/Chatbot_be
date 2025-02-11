@@ -3,8 +3,11 @@ from datetime import timedelta
 from app.core.sqlalchemy_connection import SessionLocal, get_db
 from app.db.models.user import User
 from app.schemas.user.user_schema import LoginData, SignupData, Token
-from app.utils.user_utils import (authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES,create_access_token, get_user, \
-    get_password_hash)
+from app.utils.user_utils import (
+    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token,
+    get_user, get_password_hash
+)
+from fastapi.responses import JSONResponse
 
 auth_router = APIRouter()
 
@@ -18,9 +21,17 @@ def login_for_access_token(login_data: LoginData, db: SessionLocal = Depends(get
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    response_data = {
+        "succeeded": True,
+        "status_code": 200,
+        "message": "Login successful.",
+        "data": {"access_token": access_token, "token_type": "bearer"}
+    }
+    return JSONResponse(content=response_data, status_code=200)
 
 
 @auth_router.post("/signup")
@@ -39,11 +50,25 @@ def signup_user(signup_data: SignupData, db: SessionLocal = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message": "User registered successfully"}
+
+    response_data = {
+        "succeeded": True,
+        "status_code": 201,
+        "message": "User registered successfully.",
+        "data": {"id": str(new_user.id), "email": new_user.email}
+    }
+    return JSONResponse(content=response_data, status_code=201)
+
 
 @auth_router.post("/logout")
 def logout():
     """
     Informs the client that logout is successful. The client should remove the token.
     """
-    return {"message": "Logged out successfully"}
+    response_data = {
+        "succeeded": True,
+        "status_code": 200,
+        "message": "Logged out successfully.",
+        "data": None
+    }
+    return JSONResponse(content=response_data, status_code=200)

@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     """
 
 
-    # OPENAI_API_KEY:str = os.environ.get("OPENAI_API_KEY")
+    OPENAI_API_KEY:str = os.environ.get("OPENAI_API_KEY")
     # OPENAI_MODEL_NAME:str = os.environ.get("OPENAI_MODEL_NAME")
     # PINECONE_API_KEY : str = os.environ.get("PINECONE_API_KEY")
 

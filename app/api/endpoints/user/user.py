@@ -25,11 +25,17 @@ def login_for_access_token(login_data: LoginData, db: SessionLocal = Depends(get
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
 
+    user_data = {
+        "id": str(user.id),
+        "email": user.email,
+        "name": user.username
+    }
+
     response_data = {
         "succeeded": True,
         "status_code": 200,
         "message": "Login successful.",
-        "data": {"access_token": access_token, "token_type": "bearer"}
+        "data": {"access_token": access_token, "token_type": "bearer", "user":user_data}
     }
     return JSONResponse(content=response_data, status_code=200)
 
